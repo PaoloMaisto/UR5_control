@@ -2,6 +2,8 @@
 
 Questo repository contiene un progetto completo per il controllo di un robot manipolatore, costituito da 6 giunti rotoidali, tramite pianificazione di traiettorie cartesiane multi-target, con profilo di velocità cubico e orientazione vincolata dell'end-effector.
 
+![Robot UR5 in azione](img/ur5.png)
+
 ---
 
 ## 1. Informazioni Generali
@@ -119,5 +121,3 @@ rosrun kdl_ros_control kdl_robot_test ./src/iiwa_stack/iiwa_description/urdf/iiw
 ### 5. Avviare gazebo
 
 Startare semplicemente la simulazione su gazebo
-
-![Robot UR5 in azione](img/ur5.png)
