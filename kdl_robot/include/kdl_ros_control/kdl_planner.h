@@ -34,12 +34,12 @@ struct trajectory_point {
   Eigen::Vector3d ang_acc = Eigen::Vector3d::Zero();
 };
 
-
 class KDLPlanner
 {
 
 public:
 
+    KDLPlanner(double _maxVel, double _maxAcc);
     void CreateTrajectoryFromFrames(std::vector<KDL::Frame> &_frames,
                                     double _radius, double _eqRadius);
     void createCircPath(KDL::Frame &_F_start,
@@ -53,10 +53,8 @@ public:
 
     //////////////////////////////////
     KDLPlanner();
-    void trapezoidal_vel(double t, double tc, double &s, double &s_dot, double &s_ddot);
     void cubic_polinomial(double t, double &s, double &s_dot, double &s_ddot);
-    void setWaypointsFrames(const std::vector<KDL::Frame>& frames,
-                          const std::vector<double>& durations);
+    void setWaypointsFrames(const std::vector<KDL::Frame>& frames, const std::vector<double>& durations);
     trajectory_point compute_multi_traj_cubic_prof_frames(const double time);       
     double getTotalDuration() const;
 

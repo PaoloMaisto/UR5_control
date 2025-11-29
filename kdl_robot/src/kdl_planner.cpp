@@ -1,7 +1,12 @@
 #include "kdl_ros_control/kdl_planner.h"
 
-KDLPlanner::KDLPlanner()
+KDLPlanner::KDLPlanner(double _maxVel, double _maxAcc)
 {
+    velpref_ = new KDL::VelocityProfile_Trap(_maxVel,_maxAcc);
+}
+
+KDLPlanner::KDLPlanner(){
+
 }
 
 void KDLPlanner::CreateTrajectoryFromFrames(std::vector<KDL::Frame> &_frames,
@@ -45,28 +50,6 @@ void KDLPlanner::createCircPath(KDL::Frame &_F_start,
 KDL::Trajectory* KDLPlanner::getTrajectory()
 {
 	return traject_;
-}
-
-void KDLPlanner::trapezoidal_vel(double t, double tc, double &s, double &s_dot, double &s_ddot){
-  // Trapezoidal profile s : [0, 1] //
-  
-  double s_ddot_c = -1.0 / (std::pow(tc, 2) - trajDuration_*tc);
-  if (t <= tc){
-    s = 0.5*s_ddot_c*std::pow(t, 2);
-    s_dot = s_ddot_c*t;
-    s_ddot = s_ddot_c;
-  }
-  else if (t <= trajDuration_-tc){
-    s = s_ddot_c*tc*(t - tc/2);
-    s_dot = s_ddot_c*tc;
-    s_ddot = 0;
-  }
-  else {
-    s = 1 - 0.5*s_ddot_c*std::pow(trajDuration_ - t, 2);
-    s_dot = s_ddot_c*(trajDuration_ - t);
-    s_ddot = -s_ddot_c;
-  }
-
 }
 
 void KDLPlanner::cubic_polinomial(double t, double &s, double &s_dot, double &s_ddot){
@@ -128,15 +111,15 @@ trajectory_point KDLPlanner::compute_multi_traj_cubic_prof_frames(const double t
     double Tseg = segment_durations_[seg];
     double t_local = t - t0;
 
-    // preserve old trajDuration_
+    // preserve old trajDuration_ (usato da cubic_polinomial)
     double old_trajDuration = trajDuration_;
     trajDuration_ = Tseg;
 
-    // compute local s, s_dot, s_ddot
+    // calcola s, s_dot, s_ddot nel segmento locale
     double s, s_dot, s_ddot;
     cubic_polinomial(t_local, s, s_dot, s_ddot);
 
-    // --- translation ---
+    // --- traslazione (lineare) ---
     KDL::Vector p0 = frames_[seg].p;
     KDL::Vector p1 = frames_[seg+1].p;
     KDL::Vector delta_p = p1 - p0;
@@ -153,17 +136,18 @@ trajectory_point KDLPlanner::compute_multi_traj_cubic_prof_frames(const double t
     traj.acc(1) = s_ddot * delta_p.y();
     traj.acc(2) = s_ddot * delta_p.z();
 
-    // --- rotation: single-axis interpolation ---
+    // --- rotazione: single-axis interpolation ---
     KDL::Rotation R0 = frames_[seg].M;
     KDL::Rotation R1 = frames_[seg+1].M;
 
+    // rotazione relativa Rrel = R0^T * R1
     KDL::Rotation Rrel = R0.Inverse() * R1;
 
     KDL::Vector axis;
     double angle;
-    angle = Rrel.GetRotAngle(axis);
+    angle = Rrel.GetRotAngle(axis); // restituisce l'angolo, imposta axis
 
-    // angle ~ 0
+    // gestisci caso angolo ~ 0
     KDL::Rotation Rcurr;
     if (std::abs(angle) < 1e-9) {
         Rcurr = R0;
@@ -171,6 +155,7 @@ trajectory_point KDLPlanner::compute_multi_traj_cubic_prof_frames(const double t
         Rcurr = R0 * KDL::Rotation::Rot(axis, s * angle);
     }
 
+    // converti in quaternion (KDL: GetQuaternion(x,y,z,w))
     double qx, qy, qz, qw;
     Rcurr.GetQuaternion(qx, qy, qz, qw);
     traj.rot(0) = qx;
@@ -178,6 +163,7 @@ trajectory_point KDLPlanner::compute_multi_traj_cubic_prof_frames(const double t
     traj.rot(2) = qz;
     traj.rot(3) = qw;
 
+    // angolare: omega = s_dot * angle * axis_world
     KDL::Vector axis_world = R0 * axis;
     KDL::Vector omega = axis_world * (s_dot * angle);
     KDL::Vector alpha = axis_world * (s_ddot * angle);

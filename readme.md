@@ -46,7 +46,7 @@ Tutti i target mantengono **identica orientazione**, vincolata all’orientazion
 | ------ | -------------------- | ---------------------------- |
 | T1     | (+0.10, 0.00, 0.00)  | Movimento in avanti          |
 | T2     | (0.00, -0.70, 0.00)  | Movimento laterale sinistro  |
-| T3     | (0.00, 0.00, +0.50)  | Sollevamento verticale       |
+| T3     | (0.00, 0.00, +0.30)  | Sollevamento verticale       |
 | T4     | (-0.70, +0.20, 0.00) | Movimento diagonale indietro |
 
 ---
@@ -119,3 +119,5 @@ rosrun kdl_ros_control kdl_robot_test ./src/iiwa_stack/iiwa_description/urdf/iiw
 ### 5. Avviare gazebo
 
 Startare semplicemente la simulazione su gazebo
+
+![Robot UR5 in azione](img/ur5.png)

@@ -148,19 +148,17 @@ int main(int argc, char **argv)
     KDLPlanner planner;
 
     ///////////////////////////////// TARGETS /////////////////////////////////
-    /*targets.push_back(start_frame * KDL::Frame(KDL::Vector(0.10, 0.0, 0.0)));           // Target 1 
+    /*targets.push_back(start_frame * KDL::Frame(KDL::Vector(0.0, 0.0, 0.10)));         // Target 1 
     targets.push_back(start_frame * KDL::Frame(KDL::Vector(0.0, -0.70, 0.0)));          // Target 2 
-    targets.push_back(start_frame * KDL::Frame(KDL::Vector(0.0, 0.0, 0.5)));            // Target 3 
-    targets.push_back(start_frame * KDL::Frame(KDL::Vector(-0.70, 0.20, 0.00)));        // Target 4*/
-
+    targets.push_back(start_frame * KDL::Frame(KDL::Vector(0.0, 0.0, 0.3)));            // Target 3 
+    targets.push_back(start_frame * KDL::Frame(KDL::Vector(-0.70, 0.10, 0.00)));        // Target 4*/
 
     KDL::Rotation desired_orientation = KDL::Rotation::Identity();
 
-    targets.push_back( KDL::Frame(desired_orientation, start_frame.p + KDL::Vector(0.10, 0.0, 0.0)) );
-    targets.push_back( KDL::Frame(desired_orientation, start_frame.p + KDL::Vector(0.0, -0.70, 0.0)) );
-    targets.push_back( KDL::Frame(desired_orientation, start_frame.p + KDL::Vector(0.0, 0.0, 0.5)) );
-    targets.push_back( KDL::Frame(desired_orientation, start_frame.p + KDL::Vector(-0.70, 0.20, 0.00)) );
-
+    targets.push_back( KDL::Frame(desired_orientation, start_frame.p + KDL::Vector(0.10, 0.0, 0.0)) );          // Target 1
+    targets.push_back( KDL::Frame(desired_orientation, start_frame.p + KDL::Vector(0.0, -0.70, 0.0)) );         // Target 2
+    targets.push_back( KDL::Frame(desired_orientation, start_frame.p + KDL::Vector(0.0, 0.0, 0.3)) );           // Target 3
+    targets.push_back( KDL::Frame(desired_orientation, start_frame.p + KDL::Vector(-0.70, 0.20, 0.00)) );       // Target 4
 
     int current_target = 0;
     double traj_duration = 2.0, t = 0.0, init_time_slot = 1.0;
@@ -217,8 +215,8 @@ int main(int argc, char **argv)
 
                     std::cout << ">> nuovo target: " << current_target+1 << std::endl;
 
-                    //KDL::Frame current_pose = robot.getEEFrame();
-                    KDL::Frame current_pose( desired_orientation, robot.getEEFrame().p );
+                    KDL::Frame current_pose = robot.getEEFrame();
+                    //KDL::Frame current_pose( desired_orientation, robot.getEEFrame().p );
                     planner.setWaypointsFrames({ current_pose, targets[current_target] }, { traj_duration });
 
                     begin = ros::Time::now();

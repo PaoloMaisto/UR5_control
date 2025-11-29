@@ -141,4 +141,3 @@ Eigen::VectorXd KDLController::idCntr(KDL::Frame &_desPos,
 
    return tau;
 }
-

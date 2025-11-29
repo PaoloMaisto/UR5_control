@@ -174,7 +174,7 @@ KDL::JntArray KDLRobot::getInvKin(const KDL::JntArray &q,
     int err = ikSol_->CartToJnt(q, eeFrame, jntArray_out_);
     if (err != 0)
     {
-        //printf("inverse kinematics failed with error: %d \n", err);
+        printf("inverse kinematics failed with error: %d \n", err);
     }
     return jntArray_out_;
 }
